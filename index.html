@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Apple Game</title>
+<style>
+:root{--r1:#7e3f50;--r2:#8e4a5c;--r3:#b5677a;--r4:#d29aa7;--r5:#efd3da;--r6:#fbeef1;--bd:#6e1f33}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#fff;overflow:hidden}
+body{font:13px/1.45 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard",sans-serif;color:#1d1d1f;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none}
+.hd{display:flex;align-items:center;gap:8px;padding:10px 14px 8px}
+.sc{display:flex;align-items:center;gap:5px;font-weight:700;font-size:14px;font-variant-numeric:tabular-nums}
+.sc i,.ap{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 6.8c-1.8-1.1-5.3-1.3-7.2.9-2.5 3-1.2 8.6 1.6 11.8 1.5 1.7 3 2.3 5.6 1.3 2.6 1 4.1.4 5.6-1.3 2.8-3.2 4.1-8.8 1.6-11.8-1.9-2.2-5.4-2-7.2-.9z' fill='%23d29aa7'/%3E%3Cpath d='M12 6.9c0-1.9.5-3.3 1.8-4.3' fill='none' stroke='%238e4a5c' stroke-width='1.5' stroke-linecap='round'/%3E%3Cpath d='M12.7 4.8c1.4-1.5 3.4-1.6 4.7-1.1-.6 1.6-2.6 2.4-4.7 1.1z' fill='%23b5677a'/%3E%3C/svg%3E") center/100% no-repeat}
+.sc i{width:16px;height:16px}
+.bs{font-size:11.5px;color:#9a8287;font-weight:500}
+.sm{margin-left:auto;padding:2px 11px;border-radius:99px;background:var(--r6);color:var(--r2);font-weight:700;font-variant-numeric:tabular-nums;transition:background .15s,color .15s}
+.sm.ok{background:var(--r2);color:#fff}
+.sm.over{background:var(--r5);color:var(--bd)}
+button{font:600 11.5px/1 -apple-system,"Apple SD Gothic Neo",sans-serif;color:#fff;background:var(--r2);border:0;border-radius:99px;padding:6px 12px;cursor:pointer}
+.tm{height:4px;margin:0 14px;border-radius:2px;background:#f3d6dc;overflow:hidden}
+.tm i{display:block;height:100%;background:var(--r3);transform-origin:left;transform:scaleX(1)}
+.tm.low i{background:var(--bd)}
+.wrap{flex:1;min-height:0;display:grid;place-items:center;padding:10px 12px 12px}
+.bd{position:relative;display:grid;touch-action:none;cursor:crosshair}
+.ap{display:grid;place-items:center;padding-top:9%;font-weight:700;color:#fff;transition:transform .15s cubic-bezier(.3,1.6,.6,1),opacity .25s}
+.ap.on{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 6.8c-1.8-1.1-5.3-1.3-7.2.9-2.5 3-1.2 8.6 1.6 11.8 1.5 1.7 3 2.3 5.6 1.3 2.6 1 4.1.4 5.6-1.3 2.8-3.2 4.1-8.8 1.6-11.8-1.9-2.2-5.4-2-7.2-.9z' fill='%238e4a5c'/%3E%3Cpath d='M12 6.9c0-1.9.5-3.3 1.8-4.3' fill='none' stroke='%237e3f50' stroke-width='1.5' stroke-linecap='round'/%3E%3Cpath d='M12.7 4.8c1.4-1.5 3.4-1.6 4.7-1.1-.6 1.6-2.6 2.4-4.7 1.1z' fill='%23b5677a'/%3E%3C/svg%3E");transform:scale(1.08)}
+.ap.go{transform:scale(0) rotate(25deg);opacity:0}
+.ap.x{visibility:hidden}
+.sel{position:absolute;border:1.5px solid var(--r2);background:rgba(239,211,218,.35);border-radius:6px;pointer-events:none;display:none}
+.sel.ok{border-color:var(--bd);background:rgba(181,103,122,.22)}
+.ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;background:rgba(251,238,241,.94);z-index:5}
+.ov[hidden]{display:none}
+.ov b{font-size:24px;font-weight:800;color:var(--r1)}
+.ov p{color:#6b5a5f;font-size:12.5px}
+.ov p em{font-style:normal;font-weight:800;color:var(--r2)}
+.ov .big{font-size:16px;font-weight:700;color:var(--r2)}
+.ov button{margin-top:8px;padding:9px 28px;font-size:13px;font-weight:700}
+</style>
+</head>
+<body>
+<div class="hd"><span class="sc"><i></i><span id="score">0</span></span><span class="bs" id="best"></span><span class="sm" id="sum">합 0</span><button id="re">다시 하기</button></div>
+<div class="tm" id="tm"><i id="bar"></i></div>
+<div class="wrap" id="wrap"><div class="bd" id="bd"><div class="sel" id="sel"></div></div></div>
+<div class="ov" id="start"><b>사과 게임</b><p>드래그해서 사과를 네모로 묶어요<br>숫자 합이 <em>10</em>이 되면 펑!</p><button id="go">Start</button></div>
+<div class="ov" id="end" hidden><b>Time's up!</b><p class="big" id="fin"></p><p id="fbest"></p><button id="again">다시 하기</button></div>
+<script>
+(()=>{
+const C=14,R=8,T=120;
+const bd=document.getElementById('bd'),sel=document.getElementById('sel'),wrap=document.getElementById('wrap');
+const $=id=>document.getElementById(id);
+let cells=[],score=0,t0=0,raf=0,playing=false,drag=null,cs=32;
+const getBest=()=>{try{return +localStorage.getItem('ag-best')||0}catch(e){return 0}};
+const setBest=v=>{try{localStorage.setItem('ag-best',v)}catch(e){}};
+const showBest=()=>{const b=getBest();$('best').textContent=b?'최고 '+b:''};
+function layout(){
+  const w=wrap.clientWidth-24,h=wrap.clientHeight-22;
+  cs=Math.max(18,Math.floor(Math.min(w/C,h/R)));
+  bd.style.gridTemplateColumns=`repeat(${C},${cs}px)`;
+  bd.style.gridAutoRows=cs+'px';
+  bd.style.fontSize=Math.round(cs*.42)+'px';
+}
+function deal(){
+  let v;
+  do{v=Array.from({length:C*R},()=>1+Math.floor(Math.random()*9))}while(v.reduce((a,b)=>a+b,0)%10);
+  bd.querySelectorAll('.ap').forEach(e=>e.remove());
+  cells=v.map((n,i)=>{const e=document.createElement('div');e.className='ap';e.textContent=n;bd.appendChild(e);return{n,e,r:Math.floor(i/C),c:i%C,alive:true}});
+}
+function reset(){
+  cancelAnimationFrame(raf);playing=false;score=0;$('score').textContent=0;
+  $('bar').style.transform='scaleX(1)';$('tm').classList.remove('low');
+  setSum(0,false);deal();showBest();
+}
+function begin(){
+  reset();$('start').hidden=true;$('end').hidden=true;playing=true;t0=performance.now();tick();
+}
+function tick(){
+  const left=Math.max(0,T-(performance.now()-t0)/1000);
+  $('bar').style.transform=`scaleX(${left/T})`;
+  $('tm').classList.toggle('low',left<15);
+  if(left<=0){finish();return}
+  raf=requestAnimationFrame(tick);
+}
+function finish(){
+  playing=false;endDrag();
+  const b=getBest();if(score>b)setBest(score);
+  $('fin').textContent=`딴 사과 ${score}개`;
+  $('fbest').textContent=score>b&&score>0?'최고 기록 갱신! 🍎':'최고 기록 '+Math.max(b,score)+'개';
+  showBest();$('end').hidden=false;
+}
+function setSum(s,any){
+  const el=$('sum');el.textContent='합 '+s;
+  el.classList.toggle('ok',s===10);el.classList.toggle("over",s>10);
+}
+function pos(ev){const r=bd.getBoundingClientRect();return{x:ev.clientX-r.left,y:ev.clientY-r.top}}
+function inRect(){
+  const x1=Math.min(drag.x0,drag.x1),x2=Math.max(drag.x0,drag.x1),y1=Math.min(drag.y0,drag.y1),y2=Math.max(drag.y0,drag.y1);
+  sel.style.cssText=`display:block;left:${x1}px;top:${y1}px;width:${x2-x1}px;height:${y2-y1}px`;
+  let s=0;const hit=[];
+  for(const c of cells){
+    if(!c.alive)continue;
+    const cx=(c.c+.5)*cs,cy=(c.r+.5)*cs;
+    const on=cx>=x1&&cx<=x2&&cy>=y1&&cy<=y2;
+    c.e.classList.toggle('on',on);
+    if(on){s+=c.n;hit.push(c)}
+  }
+  sel.classList.toggle('ok',s===10);setSum(s,hit.length>0);
+  return{s,hit};
+}
+function endDrag(){
+  if(!drag)return;
+  const {s,hit}=inRect();
+  sel.style.display='none';
+  cells.forEach(c=>c.e.classList.remove('on'));
+  if(playing&&s===10){
+    hit.forEach(c=>{c.alive=false;c.e.classList.add('go');setTimeout(()=>c.e.classList.add('x'),260)});
+    score+=hit.length;$('score').textContent=score;
+  }
+  setSum(0,false);drag=null;
+}
+bd.addEventListener('pointerdown',ev=>{
+  if(!playing)return;
+  const p=pos(ev);drag={x0:p.x,y0:p.y,x1:p.x,y1:p.y,id:ev.pointerId};
+  try{bd.setPointerCapture(ev.pointerId)}catch(e){}
+  inRect();ev.preventDefault();
+});
+bd.addEventListener('pointermove',ev=>{
+  if(!drag||ev.pointerId!==drag.id)return;
+  const p=pos(ev);drag.x1=p.x;drag.y1=p.y;inRect();
+});
+bd.addEventListener('pointerup',endDrag);
+bd.addEventListener('pointercancel',endDrag);
+$('go').onclick=begin;$('again').onclick=begin;
+$('re').onclick=()=>{if(playing||!$('end').hidden)begin();};
+addEventListener('resize',layout);
+layout();reset();
+})();
+</script>
+</body>
+</html>
