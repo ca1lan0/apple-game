@@ -185,7 +185,7 @@ function next(){
  else if(cur===3)say(DONE[2]);else say(DONE[Math.floor(Math.random()*2)]);
  paint();scrollCur();
 }
-function scrollCur(){const e=cur===LINES.length-1?$('bn'):$('l'+cur);if(e)e.scrollIntoView({block:'center',behavior:'smooth'})}
+function scrollCur(){const e=cur===LINES.length-1?$('bn'):$('l'+cur);if(!e)return;const pg=$('pg'),er=e.getBoundingClientRect(),pr=pg.getBoundingClientRect();if(er.top<pr.top+8||er.bottom>pr.bottom-100)pg.scrollTo({top:pg.scrollTop+er.top-pr.top-pr.height/3,behavior:'smooth'})}
 function finish(){
  playing=false;const {spd,acc,sec}=stats();inp.blur();sfx.end();$('bub').classList.remove('on');
  let rk,cm;
@@ -203,7 +203,7 @@ function finish(){
 function begin(){
  cur=0;t0=0;strokes=0;keys=0;errs=0;lastBad=-1;comp=false;playing=true;inp.value='';
  $('start').hidden=true;$('end').hidden=true;$('eg').textContent='🦅 소피아는 독수리 타법이에요. 천천히 정확하게!';
- build();paint();stats();actx();sfx.start();inp.focus();$('pg').scrollTop=0;
+ build();paint();stats();actx();sfx.start();inp.focus({preventScroll:true});$('pg').scrollTop=0;
  setTimeout(()=>say('진짜 네가 직접 쳐? 손가락 두 개로?',2600),500);
 }
 inp.addEventListener('compositionstart',()=>{comp=true});
