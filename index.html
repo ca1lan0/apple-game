@@ -18,6 +18,8 @@ body{font:13px/1.45 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pret
 .sm.ok{background:var(--r2);color:#fff}
 .sm.over{background:var(--r5);color:var(--bd)}
 button{font:600 11.5px/1 -apple-system,"Apple SD Gothic Neo",sans-serif;color:#fff;background:var(--r2);border:0;border-radius:99px;padding:6px 12px;cursor:pointer}
+.mu{width:26px;height:26px;padding:0;background:var(--r6) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 9.5h3.2L12 5.5v13l-4.8-4H4z' fill='%238e4a5c'/%3E%3Cpath d='M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a7.8 7.8 0 0 1 0 11' fill='none' stroke='%238e4a5c' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E") center/16px no-repeat}
+.mu.off{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 9.5h3.2L12 5.5v13l-4.8-4H4z' fill='%23d29aa7'/%3E%3Cpath d='M15.5 9.5l5 5M20.5 9.5l-5 5' stroke='%23d29aa7' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E")}
 .tm{height:4px;margin:0 14px;border-radius:2px;background:#f3d6dc;overflow:hidden}
 .tm i{display:block;height:100%;background:var(--r3);transform-origin:left;transform:scaleX(1)}
 .tm.low i{background:var(--bd)}
@@ -39,7 +41,7 @@ button{font:600 11.5px/1 -apple-system,"Apple SD Gothic Neo",sans-serif;color:#f
 </style>
 </head>
 <body>
-<div class="hd"><span class="sc"><i></i><span id="score">0</span></span><span class="bs" id="best"></span><span class="sm" id="sum">합 0</span><button id="re">다시 하기</button></div>
+<div class="hd"><span class="sc"><i></i><span id="score">0</span></span><span class="bs" id="best"></span><span class="sm" id="sum">합 0</span><button id="mu" class="mu" aria-label="sound"></button><button id="re">다시 하기</button></div>
 <div class="tm" id="tm"><i id="bar"></i></div>
 <div class="wrap" id="wrap"><div class="bd" id="bd"><div class="sel" id="sel"></div></div></div>
 <div class="ov" id="start"><b>사과 게임</b><p>드래그해서 사과를 네모로 묶어요<br>숫자 합이 <em>10</em>이 되면 펑!</p><button id="go">Start</button></div>
@@ -52,6 +54,26 @@ const $=id=>document.getElementById(id);
 let cells=[],score=0,t0=0,raf=0,playing=false,drag=null,cs=32;
 const getBest=()=>{try{return +localStorage.getItem('ag-best')||0}catch(e){return 0}};
 const setBest=v=>{try{localStorage.setItem('ag-best',v)}catch(e){}};
+let ac=null,muted=false,lastN=-1,lastTick=-1;
+try{muted=localStorage.getItem('ag-mute')==='1'}catch(e){}
+const actx=()=>{if(!ac){const A=window.AudioContext||window.webkitAudioContext;if(!A)return null;ac=new A()}if(ac.state==='suspended')ac.resume();return ac};
+function tone(f,d,o={}){
+  if(muted)return;const a=actx();if(!a)return;const t=a.currentTime+(o.at||0);
+  const g=a.createGain(),v=a.createOscillator();v.type=o.type||'sine';
+  v.frequency.setValueAtTime(f,t);if(o.to)v.frequency.exponentialRampToValueAtTime(o.to,t+d);
+  g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(o.vol||.18,t+.008);g.gain.exponentialRampToValueAtTime(0.0001,t+d);
+  v.connect(g).connect(a.destination);v.start(t);v.stop(t+d+.02);
+}
+const sfx={
+  start(){[523,659,784,1047].forEach((f,i)=>tone(f,.16,{at:i*.07,type:'triangle',vol:.14}))},
+  pick(n){tone(620+n*28,.05,{type:'triangle',vol:.06})},
+  ready(){tone(1175,.09,{type:'sine',vol:.1});tone(1568,.12,{at:.05,type:'sine',vol:.08})},
+  pop(k){for(let i=0;i<k;i++){tone(380+i*90,.12,{at:i*.045,to:900+i*120,type:'sine',vol:.2})}tone(1760,.18,{at:k*.045,type:'triangle',vol:.07})},
+  miss(){tone(220,.14,{to:150,type:'triangle',vol:.12})},
+  tick(){tone(1320,.04,{type:'square',vol:.035})},
+  end(){[784,659,523,392].forEach((f,i)=>tone(f,.22,{at:i*.13,type:'triangle',vol:.14}));tone(523,.5,{at:.55,type:'sine',vol:.1});tone(659,.5,{at:.55,type:'sine',vol:.08})}
+};
+const muBtn=()=>document.getElementById('mu').classList.toggle('off',muted);
 const showBest=()=>{const b=getBest();$('best').textContent=b?'최고 '+b:''};
 function layout(){
   const w=wrap.clientWidth-24,h=wrap.clientHeight-22;
@@ -72,17 +94,18 @@ function reset(){
   setSum(0,false);deal();showBest();
 }
 function begin(){
-  reset();$('start').hidden=true;$('end').hidden=true;playing=true;t0=performance.now();tick();
+  reset();$('start').hidden=true;$('end').hidden=true;playing=true;t0=performance.now();lastTick=-1;actx();sfx.start();tick();
 }
 function tick(){
   const left=Math.max(0,T-(performance.now()-t0)/1000);
   $('bar').style.transform=`scaleX(${left/T})`;
   $('tm').classList.toggle('low',left<15);
+  const sec=Math.ceil(left);if(sec<=10&&sec>0&&sec!==lastTick){lastTick=sec;sfx.tick()}
   if(left<=0){finish();return}
   raf=requestAnimationFrame(tick);
 }
 function finish(){
-  playing=false;endDrag();
+  playing=false;endDrag();sfx.end();
   const b=getBest();if(score>b)setBest(score);
   $('fin').textContent=`딴 사과 ${score}개`;
   $('fbest').textContent=score>b&&score>0?'최고 기록 갱신! 🍎':'최고 기록 '+Math.max(b,score)+'개';
@@ -105,6 +128,7 @@ function inRect(){
     if(on){s+=c.n;hit.push(c)}
   }
   sel.classList.toggle('ok',s===10);setSum(s,hit.length>0);
+  if(hit.length!==lastN){if(hit.length>lastN&&lastN>=0){s===10?sfx.ready():sfx.pick(hit.length)}lastN=hit.length}
   return{s,hit};
 }
 function endDrag(){
@@ -114,13 +138,13 @@ function endDrag(){
   cells.forEach(c=>c.e.classList.remove('on'));
   if(playing&&s===10){
     hit.forEach(c=>{c.alive=false;c.e.classList.add('go');setTimeout(()=>c.e.classList.add('x'),260)});
-    score+=hit.length;$('score').textContent=score;
-  }
+    score+=hit.length;$('score').textContent=score;sfx.pop(Math.min(hit.length,6));
+  }else if(playing&&hit.length)sfx.miss();
   setSum(0,false);drag=null;
 }
 bd.addEventListener('pointerdown',ev=>{
   if(!playing)return;
-  const p=pos(ev);drag={x0:p.x,y0:p.y,x1:p.x,y1:p.y,id:ev.pointerId};
+  lastN=-1;const p=pos(ev);drag={x0:p.x,y0:p.y,x1:p.x,y1:p.y,id:ev.pointerId};
   try{bd.setPointerCapture(ev.pointerId)}catch(e){}
   inRect();ev.preventDefault();
 });
@@ -130,6 +154,7 @@ bd.addEventListener('pointermove',ev=>{
 });
 bd.addEventListener('pointerup',endDrag);
 bd.addEventListener('pointercancel',endDrag);
+$('mu').onclick=()=>{muted=!muted;try{localStorage.setItem('ag-mute',muted?'1':'0')}catch(e){}muBtn();if(!muted){actx();sfx.pick(3)}};muBtn();
 $('go').onclick=begin;$('again').onclick=begin;
 $('re').onclick=()=>{if(playing||!$('end').hidden)begin();};
 addEventListener('resize',layout);
