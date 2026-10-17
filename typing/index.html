@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Apology v8</title>
+<style>
+:root{--r1:#7e3f50;--r2:#8e4a5c;--r3:#b5677a;--r4:#d29aa7;--r5:#efd3da;--r6:#fbeef1;--bd:#6e1f33;--mut:#9a8287}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#fff;overflow:hidden}
+body{font:13px/1.5 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard",sans-serif;color:#1d1d1f;display:flex;flex-direction:column}
+.tb{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid #eee;white-space:nowrap}
+.fn{display:flex;align-items:center;gap:6px;font-weight:600;font-size:12.5px;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.fn i{flex:none;width:14px;height:17px;border-radius:2px;background:var(--r6);border:1.5px solid var(--r3);position:relative}
+.fn i::before{content:"";position:absolute;left:2px;right:2px;top:3px;height:7px;background:linear-gradient(var(--r4) 0 1.5px,transparent 1.5px 3.5px,var(--r4) 3.5px 5px,transparent 5px)}
+.st{margin-left:auto;display:flex;gap:6px;font-variant-numeric:tabular-nums}
+.st span{padding:2px 9px;border-radius:99px;background:var(--r6);color:var(--r2);font-weight:700;font-size:11.5px}
+.st span small{font-weight:500;color:var(--mut);margin-left:3px}
+.mu{flex:none;width:26px;height:26px;border:0;border-radius:99px;cursor:pointer;background:var(--r6) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 9.5h3.2L12 5.5v13l-4.8-4H4z' fill='%238e4a5c'/%3E%3Cpath d='M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a7.8 7.8 0 0 1 0 11' fill='none' stroke='%238e4a5c' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E") center/16px no-repeat}
+.mu.off{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 9.5h3.2L12 5.5v13l-4.8-4H4z' fill='%23d29aa7'/%3E%3Cpath d='M15.5 9.5l5 5M20.5 9.5l-5 5' stroke='%23d29aa7' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E")}
+.pg{flex:1;min-height:0;overflow:auto;background:#f6f3f4;padding:14px;scrollbar-width:none}
+.pg::-webkit-scrollbar{display:none}
+.paper{max-width:520px;margin:0 auto;background:#fff;border:1px solid #ece4e6;border-radius:4px;padding:18px 22px 22px;min-height:100%}
+.ph{font-size:10.5px;color:var(--mut);letter-spacing:.04em;margin-bottom:4px}
+.pt{font-size:15px;font-weight:800;color:var(--r1);margin-bottom:12px}
+.ln{font-size:13.5px;line-height:1.75;color:#c9bcc0;margin-bottom:7px;word-break:keep-all;transition:color .2s}
+.ln.done{color:#1d1d1f}
+.ln.cur{color:#1d1d1f}
+.ln.bonus{font-style:italic}
+.ln.bonus:not(.cur):not(.done){display:none}
+.ln.done.bonus{color:var(--bd)}
+.ln .c{color:#c9bcc0}
+.ln .o{color:#1d1d1f}
+.ln .x{color:var(--bd);background:var(--r5);border-radius:2px;text-decoration:underline wavy var(--bd);text-underline-offset:3px}
+.ln .p{color:var(--r3);border-bottom:2px solid var(--r3)}
+.ln .k{border-left:2px solid var(--r2);margin-left:-1px;animation:bk 1s steps(1) infinite}
+@keyframes bk{50%{border-color:transparent}}
+.ins{margin-top:14px;display:flex;gap:8px;align-items:center}
+.ins input{flex:1;min-width:0;font:15px/1.4 -apple-system,"Apple SD Gothic Neo",sans-serif;padding:9px 12px;border:1.5px solid var(--r5);border-radius:10px;outline:0;color:#1d1d1f;background:#fff}
+.ins input:focus{border-color:var(--r3)}
+.ins input.bad{border-color:var(--bd);background:#fdf3f5}
+.ins b{flex:none;font-size:11px;color:var(--mut);font-weight:500}
+.eg{font-size:11px;color:var(--mut);margin-top:6px}
+.bub{position:fixed;left:12px;top:52px;max-width:min(300px,calc(100% - 24px));display:flex;align-items:flex-end;gap:6px;pointer-events:none;opacity:0;transform:translateY(-6px);transition:opacity .2s,transform .25s cubic-bezier(.3,1.5,.6,1);z-index:4}
+.bub.on{opacity:1;transform:none}
+.bub i{flex:none;width:24px;height:24px;border-radius:50%;background:linear-gradient(150deg,var(--r4),var(--r2));color:#fff;font:700 11px/24px sans-serif;text-align:center;font-style:normal}
+.bub span{background:#e9e9eb;color:#1d1d1f;padding:7px 11px;border-radius:16px 16px 16px 4px;font-size:12.5px;line-height:1.4}
+.ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;background:rgba(251,238,241,.96);z-index:5;padding:20px}
+.ov[hidden]{display:none}
+.ov .t{font-size:22px;font-weight:800;color:var(--r1)}
+.ov p{color:#6b5a5f;font-size:12.5px}
+.ov .egl{font-size:40px;line-height:1.1}
+.ov .big{font-size:30px;font-weight:800;color:var(--r2);font-variant-numeric:tabular-nums;line-height:1.1}
+.ov .big small{font-size:13px;font-weight:600;color:var(--mut);margin-left:3px}
+.ov .rk{display:inline-block;margin-top:2px;padding:3px 12px;border-radius:99px;background:var(--r2);color:#fff;font-weight:700;font-size:12px}
+.ov .cm{display:flex;align-items:flex-end;gap:6px;margin-top:8px;text-align:left}
+.ov .cm i{flex:none;width:24px;height:24px;border-radius:50%;background:linear-gradient(150deg,var(--r4),var(--r2));color:#fff;font:700 11px/24px sans-serif;text-align:center;font-style:normal}
+.ov .cm span{background:#e9e9eb;color:#1d1d1f;padding:7px 11px;border-radius:16px 16px 16px 4px;font-size:12.5px;max-width:280px}
+.ov button{margin-top:10px;font:700 13px/1 -apple-system,"Apple SD Gothic Neo",sans-serif;color:#fff;background:var(--r2);border:0;border-radius:99px;padding:10px 28px;cursor:pointer}
+.ov .sub{font-size:11.5px;color:var(--mut)}
+</style>
+</head>
+<body>
+<div class="tb"><span class="fn"><i></i>사과문_v8_진짜최종.pages</span><span class="st"><span id="spd">0<small>타</small></span><span id="acc">100<small>%</small></span><span id="prg">0/6</span></span><button class="mu" id="mu" aria-label="sound"></button></div>
+<div class="pg" id="pg"><div class="paper"><div class="ph">LIVERPOOL FC · COMMUNICATIONS · DRAFT 8</div><div class="pt">공식 사과문</div><div id="doc"></div>
+<div class="ins"><input id="in" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="여기에 그대로 따라 치세요"><b>Enter ↵</b></div>
+<div class="eg" id="eg">🦅 소피아는 독수리 타법이에요. 천천히 정확하게!</div></div></div>
+<div class="bub" id="bub"><i>C</i><span id="bt"></span></div>
+<div class="ov" id="start"><div class="egl">🦅</div><div class="t">사과문 받아치기</div><p>캘런이 내일 10시에 낭독할 사과문 v8,<br>독수리 타법으로 끝까지 쳐 봐요</p><p class="sub">첫 글자를 치는 순간부터 시간이 흘러요</p><button id="go">Start</button></div>
+<div class="ov" id="end" hidden><div class="t">작성 완료 📄</div><div class="big" id="fs">0<small>타/분</small></div><div><span class="rk" id="rk"></span></div><p id="fd"></p><div class="cm"><i>C</i><span id="fc"></span></div><button id="again">다시 치기</button></div>
+<script>
+(()=>{
+const LINES=[
+ '먼저 지난 경기 이후 저의 부적절한 발언으로 인해 상처받으신 모든 분들께 깊은 유감을 표합니다.',
+ '경기장 안팎에서 모범을 보여야 할 선수로서 감정을 다스리지 못한 점 진심으로 반성하고 있습니다.',
+ '구단과 동료들, 그리고 언제나 응원해 주시는 팬 여러분께 실망을 드려 죄송합니다.',
+ '앞으로는 말 한마디에도 더 책임감을 가지고 행동하겠습니다.',
+ '다시 한번 고개 숙여 사과드립니다.',
+ '근데 그 심판은 진짜 눈이 없었습니다.'
+];
+const TYPO=['오타.','또 틀렸어. 독수리야?','‘유감’ 틀리면 내가 진짜 유감이다.','검지 두 개로 치는 거 여기서도 보여.','그거 내가 내일 읽어야 되는 거라고.','아 씨, 천천히 해. 아니 빨리 해.','키보드 보지 말고 화면 봐.','백스페이스가 제일 바쁘네.','그 손가락 두 개 좀 쉬게 해 줘.','틀린 거 다 보여. 나 옆에 있어.'];
+const DONE=['오, 한 줄 했네.','그래, 그거야.','반은 왔다.','거의 다 했어. 조금만.'];
+const $=id=>document.getElementById(id);
+const doc=$('doc'),inp=$('in');
+let cur=0,t0=0,strokes=0,keys=0,errs=0,comp=false,lastBad=-1,playing=false,bubT=0,muted=false,ac=null,bonusSaid=false;
+try{muted=localStorage.getItem('tp-mute')==='1'}catch(e){}
+const CJ=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],JJ=[1,1,1,1,1,1,1,1,1,2,2,2,1,1,2,2,2,1,1,2,1],FJ=[0,1,1,2,1,2,2,1,1,2,2,2,2,2,2,2,1,1,2,1,1,1,1,1,1,1,1,1];
+function sk(ch){const c=ch.charCodeAt(0)-0xAC00;if(c<0||c>11171)return 1;return CJ[Math.floor(c/588)]+JJ[Math.floor(c%588/28)]+FJ[c%28]}
+const sks=s=>[...s].reduce((a,c)=>a+sk(c),0);
+const actx=()=>{if(!ac){const A=window.AudioContext||window.webkitAudioContext;if(!A)return null;ac=new A()}if(ac.state==='suspended')ac.resume();return ac};
+function tone(f,d,o={}){if(muted)return;const a=actx();if(!a)return;const t=a.currentTime+(o.at||0);const g=a.createGain(),v=a.createOscillator();v.type=o.type||'sine';v.frequency.setValueAtTime(f,t);if(o.to)v.frequency.exponentialRampToValueAtTime(o.to,t+d);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(o.vol||.15,t+.006);g.gain.exponentialRampToValueAtTime(0.0001,t+d);v.connect(g).connect(a.destination);v.start(t);v.stop(t+d+.02)}
+const sfx={
+ key(){tone(1800+Math.random()*500,.025,{type:'square',vol:.025})},
+ bad(){tone(196,.12,{to:140,type:'triangle',vol:.12})},
+ line(){tone(880,.08,{type:'sine',vol:.1});tone(1320,.12,{at:.06,type:'sine',vol:.09})},
+ start(){[523,659,784].forEach((f,i)=>tone(f,.14,{at:i*.07,type:'triangle',vol:.12}))},
+ end(){[523,659,784,1047].forEach((f,i)=>tone(f,.2,{at:i*.1,type:'triangle',vol:.13}));tone(1568,.4,{at:.45,type:'sine',vol:.07})}
+};
+const muBtn=()=>$('mu').classList.toggle('off',muted);
+const esc=s=>s.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+function say(t,ms){$('bt').textContent=t;$('bub').classList.add('on');clearTimeout(bubT);bubT=setTimeout(()=>$('bub').classList.remove('on'),ms||2200)}
+function build(){doc.innerHTML=LINES.map((l,i)=>`<p class="ln${i===LINES.length-1?' bonus':''}" id="l${i}">${esc(l)}</p>`).join('')}
+function paint(){
+ LINES.forEach((l,i)=>{const e=$('l'+i);e.classList.toggle('done',i<cur);e.classList.toggle('cur',i===cur&&playing);if(i!==cur)e.textContent=l});
+ if(cur>=LINES.length)return;
+ const tg=[...LINES[cur]],v=[...inp.value];let h='';let anyBad=false;
+ for(let i=0;i<tg.length;i++){
+  let cl='c';
+  if(i<v.length){const last=i===v.length-1;if(v[i]===tg[i])cl='o';else if(last&&comp)cl='p';else{cl='x';anyBad=true}}
+  if(i===v.length)cl+=' k';
+  h+=`<span class="${cl}">${esc(tg[i])}</span>`;
+ }
+ if(v.length>tg.length){h+=`<span class="x">${esc(v.slice(tg.length).join(''))}</span>`;anyBad=true}
+ $('l'+cur).innerHTML=h;inp.classList.toggle('bad',anyBad);
+ return anyBad;
+}
+function firstBad(){const tg=[...LINES[cur]],v=[...inp.value];const n=comp?v.length-1:v.length;for(let i=0;i<n;i++)if(v[i]!==tg[i])return i;return -1}
+function correctPrefix(){const tg=[...LINES[cur]],v=[...inp.value];let k=0;while(k<v.length&&k<tg.length&&v[k]===tg[k])k++;return sks(tg.slice(0,k).join(''))}
+function stats(){
+ const sec=t0?(performance.now()-t0)/1000:0;const tot=strokes+(cur<LINES.length?correctPrefix():0);
+ const spd=sec>1?Math.round(tot*60/sec):0;const acc=keys?Math.max(0,Math.round((keys-errs)/keys*100)):100;
+ $('spd').innerHTML=spd+'<small>타</small>';$('acc').innerHTML=acc+'<small>%</small>';$('prg').textContent=cur+'/'+LINES.length;
+ return{spd,acc,sec};
+}
+function onInput(){
+ if(!playing)return;
+ if(!t0)t0=performance.now();
+ keys++;sfx.key();
+ paint();
+ const fb=firstBad();
+ if(fb>=0&&fb!==lastBad){errs++;sfx.bad();if(Math.random()<.75)say(TYPO[Math.floor(Math.random()*TYPO.length)])}
+ lastBad=fb;
+ if(!comp&&inp.value===LINES[cur])next();
+ stats();
+}
+function next(){
+ strokes+=sks(LINES[cur]);cur++;inp.value='';lastBad=-1;sfx.line();
+ if(cur>=LINES.length){finish();return}
+ if(cur===LINES.length-1){$('eg').textContent='※ 마지막 줄은 캘런이 몰래 추가했어요';say('…그 줄은 지우지 마. 진심이니까.',3200)}
+ else if(cur===3)say(DONE[2]);else say(DONE[Math.floor(Math.random()*2)]);
+ paint();scrollCur();
+}
+function scrollCur(){const e=$('l'+cur);if(e)e.scrollIntoView({block:'nearest',behavior:'smooth'})}
+function finish(){
+ playing=false;const {spd,acc,sec}=stats();inp.blur();sfx.end();$('bub').classList.remove('on');
+ let rk,cm;
+ if(spd<100){rk='🦅 독수리 인증';cm='손가락 두 개로 끝까지 친 건 인정. 고생했어.'}
+ else if(spd<200){rk='🐣 아기 독수리';cm='느려. 근데 귀여우니까 봐준다.'}
+ else if(spd<320){rk='💼 홍보팀 막내';cm='오, 생각보다 치는데? 홍보팀 맞네.'}
+ else{rk='⚡ 프리야 씨 급';cm='뭐야, 너 평소엔 일부러 천천히 쳤냐?'}
+ if(acc<85)cm+=' 근데 오타는 좀 줄이자.';
+ const m=Math.floor(sec/60),s=Math.round(sec%60);
+ $('fs').innerHTML=spd+'<small>타/분</small>';$('rk').textContent=rk;
+ $('fd').textContent=`정확도 ${acc}% · 걸린 시간 ${m?m+'분 ':''}${s}초 · 오타 ${errs}번`;
+ $('fc').textContent=cm;$('end').hidden=false;
+}
+function begin(){
+ cur=0;t0=0;strokes=0;keys=0;errs=0;lastBad=-1;comp=false;playing=true;inp.value='';
+ $('start').hidden=true;$('end').hidden=true;$('eg').textContent='🦅 소피아는 독수리 타법이에요. 천천히 정확하게!';
+ build();paint();stats();actx();sfx.start();inp.focus();$('pg').scrollTop=0;
+ setTimeout(()=>say('진짜 네가 직접 쳐? 손가락 두 개로?',2600),500);
+}
+inp.addEventListener('compositionstart',()=>{comp=true});
+inp.addEventListener('compositionend',()=>{comp=false;setTimeout(()=>{if(!playing)return;paint();if(inp.value===LINES[cur])next();stats()},0)});
+inp.addEventListener('input',e=>{comp=!!e.isComposing||comp;onInput()});
+inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing&&playing){e.preventDefault();if(inp.value.trim()===LINES[cur])next();else{sfx.bad();say('아직 다 안 쳤잖아.')}}});
+setInterval(()=>{if(playing&&t0)stats()},500);
+$('mu').onclick=()=>{muted=!muted;try{localStorage.setItem('tp-mute',muted?'1':'0')}catch(e){}muBtn();if(!muted){actx();sfx.key()}};muBtn();
+$('go').onclick=begin;$('again').onclick=begin;
+build();paint();
+})();
+</script>
+</body>
+</html>
