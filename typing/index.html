@@ -27,6 +27,10 @@ body{font:13px/1.5 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Prete
 .ln.done{color:#1d1d1f}
 .ln.cur{color:#1d1d1f}
 .ln.bonus{font-style:italic}
+.bn{display:none;align-items:center;gap:6px;width:max-content;max-width:100%;margin:4px 0 6px;padding:3px 10px 3px 8px;border-radius:99px;background:var(--r6);border:1px solid var(--r5);color:var(--r2);font-size:11.5px;font-weight:600}
+.bn i{width:16px;height:16px;border-radius:50%;background:linear-gradient(150deg,var(--r4),var(--r2));color:#fff;font:700 9px/16px sans-serif;text-align:center;font-style:normal}
+.bn.on{display:flex;animation:pop .35s cubic-bezier(.3,1.5,.6,1)}
+@keyframes pop{from{opacity:0;transform:translateY(-4px) scale(.96)}}
 .ln.bonus:not(.cur):not(.done){display:none}
 .ln.done.bonus{color:var(--bd)}
 .ln .c{color:#c9bcc0}
@@ -99,7 +103,7 @@ const sfx={
 const muBtn=()=>$('mu').classList.toggle('off',muted);
 const esc=s=>s.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
 function say(t,ms){$('bt').textContent=t;$('bub').classList.add('on');clearTimeout(bubT);bubT=setTimeout(()=>$('bub').classList.remove('on'),ms||2200)}
-function build(){doc.innerHTML=LINES.map((l,i)=>`<p class="ln${i===LINES.length-1?' bonus':''}" id="l${i}">${esc(l)}</p>`).join('')}
+function build(){doc.innerHTML=LINES.map((l,i)=>(i===LINES.length-1?'<div class="bn" id="bn"><i>C</i>캘런이 마지막 줄을 몰래 추가했어요</div>':'')+`<p class="ln${i===LINES.length-1?' bonus':''}" id="l${i}">${esc(l)}</p>`).join('')}
 function paint(){
  LINES.forEach((l,i)=>{const e=$('l'+i);e.classList.toggle('done',i<cur);e.classList.toggle('cur',i===cur&&playing);if(i!==cur)e.textContent=l});
  if(cur>=LINES.length)return;
@@ -136,11 +140,11 @@ function onInput(){
 function next(){
  strokes+=sks(LINES[cur]);cur++;inp.value='';lastBad=-1;sfx.line();
  if(cur>=LINES.length){finish();return}
- if(cur===LINES.length-1){$('eg').textContent='※ 마지막 줄은 캘런이 몰래 추가했어요';say('…그 줄은 지우지 마. 진심이니까.',3200)}
+ if(cur===LINES.length-1){$('bn').classList.add('on');say('…그 줄은 지우지 마. 진심이니까.',3200)}
  else if(cur===3)say(DONE[2]);else say(DONE[Math.floor(Math.random()*2)]);
  paint();scrollCur();
 }
-function scrollCur(){const e=$('l'+cur);if(e)e.scrollIntoView({block:'nearest',behavior:'smooth'})}
+function scrollCur(){const e=cur===LINES.length-1?$('bn'):$('l'+cur);if(e)e.scrollIntoView({block:'center',behavior:'smooth'})}
 function finish(){
  playing=false;const {spd,acc,sec}=stats();inp.blur();sfx.end();$('bub').classList.remove('on');
  let rk,cm;
