@@ -123,11 +123,11 @@ const LINES=[
 const TYPO=['오타.','또 틀렸어. 독수리야?','‘유감’ 틀리면 내가 진짜 유감이다.','검지 두 개로 치는 거 여기서도 보여.','그거 내가 내일 읽어야 되는 거라고.','아 씨, 천천히 해. 아니 빨리 해.','키보드 보지 말고 화면 봐.','백스페이스가 제일 바쁘네.','그 손가락 두 개 좀 쉬게 해 줘.','틀린 거 다 보여. 나 옆에 있어.'];
 const DONE=['오, 한 줄 했네.','그래, 그거야.','반은 왔다.','거의 다 했어. 조금만.'];
 const RE=['지금 나가요. 진짜 5분만요.','프리야 씨가 붙잡아서 늦었어요.','알림 때문에 오타 나잖아요.','엘리베이터 기다리는 중이에요.','차 앞 말고 안에서 기다려요. 사람들 봐요.','내려가면 사과문 같이 한 번만 읽어요.'];
-const REP=['너 5분 아까도 말했거든?','그럼 프리야한테 내가 밑에서 기다린다고 해.','그니까 빨리 와 ㅋㅋ 그럼 안 보내지','계단 타. 그게 더 빠름','알았다고 ㅡㅡ 빨리나 와','…알았어. 너니까 읽는 거다'];
-const FINAL='보인다 ㅋㅋ 뛰지 마 넘어져';
-const SPAM=['야','야아','소피아','소피아아아','소피아 라일리','언제 와','왜 안 와ㅡㅡ','5분 지났거든','7분','10분째다','점 세 개만 몇 분째냐','쓰다 지웠지 다 보여','읽씹?','나 얼어 죽는다','주차장 개춥다','히터 틀었음','핫초코 사놨는데 식는다','감튀 사 갈까','배고파','졸려','독수리야','손가락 두 개로 치는 거 다 안다','경비 아저씨가 계속 쳐다봄','셀카 찍자는데','거절함 칭찬해줘','기자 지나감','모자 썼다 됐지?','라디오에 내 인터뷰 나옴 ㅋㅋ','너 좋아하는 노래 나온다','노래 끝남','엘베 고장 났냐','몇 층인데','걍 올라간다','농담 ㅋㅋ 아직 차 안','프리야한테 전화한다?','내일 10시인 거 알지','사과문 마지막 줄 진짜 지웠냐','그냥 전화할까','?','??','???'];
-const PMAX=10;
-const TYPO2=['천천히 써 기다릴게','방금 쓰다 지운 거 다 보여','오타 났지 ㅋㅋ','뭐라고 쓰는데 이렇게 오래 걸려','오타 나도 다 알아들어 그냥 보내','독수리야 답장 언제 와'];
+const REP=['너 5분 아까도 말했거든?','그럼 프리야한테 내가 밑에서 기다린다고 해.','그니까 빨리 와. 그럼 안 보내지','계단 타. 그게 더 빠름','알았다고 ㅡㅡ 빨리나 와','…알았어. 너니까 읽는 거다'];
+const FINAL='보인다. 뛰지 마 넘어져';
+const SPAM=['야','야아','소피아','소피아아아','소피아 라일리','언제 와','왜 안 와ㅡㅡ','5분 지났거든','7분','10분째다','점 세 개만 몇 분째냐','쓰다 지웠지 다 보여','읽씹?','나 얼어 죽는다','주차장 개춥다','히터 틀었음','핫초코 사놨는데 식는다','감튀 사 갈까','배고파','졸려','독수리야','손가락 두 개로 치는 거 다 안다','경비 아저씨가 계속 쳐다봄','셀카 찍자는데','거절함 칭찬해줘','기자 지나감','모자 썼다 됐지?','라디오에 내 인터뷰 나옴','너 좋아하는 노래 나온다','노래 끝남','엘베 고장 났냐','몇 층인데','걍 올라간다','농담. 아직 차 안','프리야한테 전화한다?','내일 10시인 거 알지','사과문 마지막 줄 진짜 지웠냐','그냥 전화할까','?','??','???'];
+const PMAX=5;
+const TYPO2=['천천히 써 기다릴게','방금 쓰다 지운 거 다 보여','오타 났지','뭐라고 쓰는데 이렇게 오래 걸려','오타 나도 다 알아들어 그냥 보내','독수리야 답장 언제 와'];
 const MODES={v8:{lines:LINES,typo:TYPO,file:'사과문_v8_진짜최종.pages',ph:'LIVERPOOL FC · COMMUNICATIONS · DRAFT 8',pt:'공식 사과문',ct:'사과문 v8 완성하기 결과',ch:'LIVERPOOL FC  ·  COMMUNICATIONS  ·  DRAFT 8',ft:'🦅  독수리 타법으로 끝까지 쳤어요',dl:'사과문v8_결과.png'},
 re:{lines:RE,typo:TYPO2,file:'Messages — Callan',ph:'iMESSAGE · TODAY 23:47',pt:'Callan · 주차장에서 기다리는 중',ct:'캘런에게 답장 결과',ch:'MESSAGES  ·  TO CALLAN',ft:'💌  독수리 타법으로 끝까지 보냈어요',dl:'캘런답장_결과.png'}};
 let mode='v8',CUR=LINES;
@@ -223,7 +223,7 @@ function onInput(){
 }
 function next(){
  strokes+=sks(CUR[cur]);cur++;inp.value='';lastBad=-1;sfx.line();
- if(mode==='re'){const k=cur-1,ty=$('ty'),last=cur>=CUR.length;prs=Math.max(0,prs-4);setPrs();(k+1<CUR.length?$('l'+(k+1)).before(ty):$('l'+k).after(ty));ty.classList.add('on');setTimeout(()=>{ty.classList.remove('on');const r=$('r'+k);if(k+1<CUR.length)$('l'+(k+1)).before(r);r.classList.add('on');sfx.recv();scrollEl(r);if(last)setTimeout(()=>{const f=document.createElement('p');f.className='ln cl on';f.textContent=FINAL;doc.appendChild(f);sfx.recv();scrollEl(f)},1300)},700+REP[k].length*25)}
+ if(mode==='re'){const k=cur-1,ty=$('ty'),last=cur>=CUR.length;prs=Math.max(0,prs-3);setPrs();(k+1<CUR.length?$('l'+(k+1)).before(ty):$('l'+k).after(ty));ty.classList.add('on');setTimeout(()=>{ty.classList.remove('on');const r=$('r'+k);if(k+1<CUR.length)$('l'+(k+1)).before(r);r.classList.add('on');sfx.recv();scrollEl(r);if(last)setTimeout(()=>{const f=document.createElement('p');f.className='ln cl on';f.textContent=FINAL;doc.appendChild(f);sfx.recv();scrollEl(f)},1300)},700+REP[k].length*25)}
  if(cur>=CUR.length){finish();return}
  if(mode==='v8'){if(cur===CUR.length-1){$('bn').classList.add('on');say('…그 줄은 지우지 마. 진심이니까.',3200)}
  else if(cur===3)say(DONE[2]);else say(DONE[Math.floor(Math.random()*2)])}
@@ -235,7 +235,7 @@ function finish(){
  playing=false;clearTimeout(spT);const {spd,acc,sec}=stats();inp.blur();$('bub').classList.remove('on');
  let rk,cm;const v8=mode==='v8';
  if(spd<100){rk='🦅 독수리 인증';cm=v8?'손가락 두 개로 끝까지 친 건 인정. 고생했어.':'…담엔 그냥 전화해'}
- else if(spd<200){rk='🐣 아기 독수리';cm=v8?'느려. 근데 귀여우니까 봐준다.':'답장 하나에 뭐 이렇게 오래 걸려 ㅋㅋ 빨리 타'}
+ else if(spd<200){rk='🐣 아기 독수리';cm=v8?'느려. 근데 귀여우니까 봐준다.':'답장 하나에 뭐 이렇게 오래 걸려. 빨리 타'}
  else if(spd<320){rk='💼 홍보팀 막내';cm=v8?'오, 생각보다 치는데? 홍보팀 맞네.':'오 빨리 왔네? 뛰어왔지'}
  else{rk='⚡ 프리야 씨 급';cm=v8?'뭐야, 너 평소엔 일부러 천천히 쳤냐?':'뭐야 벌써 왔어?'}
  let first=false;if(v8&&!unlocked){first=true;unlocked=true;try{localStorage.setItem('tp-unlock','1')}catch(e){}}
@@ -262,13 +262,13 @@ setInterval(()=>{if(playing&&t0)stats()},500);
 $('mu').onclick=()=>{muted=!muted;try{localStorage.setItem('tp-mute',muted?'1':'0')}catch(e){}muBtn();if(!muted){actx();sfx.key()}};muBtn();
 $('save').onclick=()=>{if(!res)return;const cv=document.createElement('canvas');const d=new Date();drawCard(cv,Object.assign({date:d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0')},res));const u=cv.toDataURL('image/png');$('pvi').src=u;$('dl').href=u;$('pv').hidden=false;sfx.line()};
 $('pvx').onclick=()=>{$('pv').hidden=true};
-function setPrs(){const e=$('prs');e.hidden=mode!=='re';e.textContent='📳 '+prs+'/'+PMAX;e.classList.toggle('hot',prs>=PMAX-3)}
+function setPrs(){const e=$('prs');e.hidden=mode!=='re';e.textContent='📳 '+prs+'/'+PMAX;e.classList.toggle('hot',prs>=PMAX-2)}
 function spam(t){if(!playing)return;const p=document.createElement('p');p.className='ln cl on sp';p.textContent=t;const ref=$('l'+cur);ref?doc.insertBefore(p,ref):doc.appendChild(p);prs++;sfx.buzz();setPrs();scrollEl(ref||p);if(prs>=PMAX)over()}
 function nextSp(T){if(T)return T[Math.floor(Math.random()*T.length)];if(!pool.length){pool=SPAM.slice();for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}}return pool.pop()}
-function spamLoop(){clearTimeout(spT);if(!playing||mode!=='re')return;const el=t0?Math.min(1,(performance.now()-t0)/90000):0;spT=setTimeout(()=>{if(!playing||mode!=='re')return;if(t0)spam(nextSp());spamLoop()},4400-1900*el+Math.random()*1300)}
+function spamLoop(){clearTimeout(spT);if(!playing||mode!=='re')return;const el=t0?Math.min(1,(performance.now()-t0)/90000):0;spT=setTimeout(()=>{if(!playing||mode!=='re')return;if(t0)spam(nextSp());spamLoop()},5400-2200*el+Math.random()*1400)}
 function over(){playing=false;clearTimeout(spT);inp.blur();$('bub').classList.remove('on');$('ftt').textContent='FaceTime 영상…';$('fb').hidden=false;$('fcm').hidden=true;$('fre').hidden=true;$('ft').hidden=false;sfx.ring()}
 function pick(t){$('fb').hidden=true;$('ftt').textContent=t[0];$('fct').textContent=t[1];$('fcm').hidden=false;$('fre').hidden=false}
-$('fup').onclick=()=>pick(['연결됨 · 00:03','그렇게 칠 거면 걍 전화 받아 ㅋㅋ']);$('fdn').onclick=()=>{sfx.bad();pick(['통화 거절함','거절? 나 지금 올라간다'])};
+$('fup').onclick=()=>pick(['연결됨 · 00:03','그렇게 칠 거면 걍 전화 받아']);$('fdn').onclick=()=>{sfx.bad();pick(['통화 거절함','거절? 나 지금 올라간다'])};
 $('ftr').onclick=()=>begin('re');$('ftx').onclick=()=>{$('ft').hidden=true;$('start').hidden=false};
 function lockUI(){const b=$('go2');b.classList.toggle('lk',!unlocked);b.textContent=unlocked?'💌 캘런에게 답장':'🔒 캘런에게 답장';$('lkm').textContent=unlocked?'':'사과문 v8을 끝까지 치면 답장 모드가 열려요'}
 $('go').onclick=()=>begin('v8');$('go2').onclick=()=>{if(!unlocked){actx();sfx.bad();return}begin('re')};$('again').onclick=()=>begin(mode);$('toRe').onclick=()=>begin('re');lockUI();
