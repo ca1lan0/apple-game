@@ -62,6 +62,12 @@ body{font:13px/1.5 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Prete
 .ov .cm span{background:#e9e9eb;color:#1d1d1f;padding:7px 11px;border-radius:16px 16px 16px 4px;font-size:12.5px;max-width:280px}
 .ov button{margin-top:10px;font:700 13px/1 -apple-system,"Apple SD Gothic Neo",sans-serif;color:#fff;background:var(--r2);border:0;border-radius:99px;padding:10px 28px;cursor:pointer}
 .ov .sub{font-size:11.5px;color:var(--mut)}
+.bt2{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.ov .ghost,.ov a.btn{background:#fff;color:var(--r2);border:1.5px solid var(--r4)}
+.ov a.btn{margin-top:10px;font:700 13px/1 -apple-system,"Apple SD Gothic Neo",sans-serif;border-radius:99px;padding:9px 22px;text-decoration:none;display:inline-block}
+.ov .ghost{padding:8.5px 22px}
+.pv{gap:4px;padding:12px}
+.pv img{max-height:calc(100% - 90px);max-width:100%;border-radius:10px;border:1px solid var(--r5)}
 </style>
 </head>
 <body>
@@ -70,8 +76,9 @@ body{font:13px/1.5 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Prete
 <div class="ins"><input id="in" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="여기에 그대로 따라 치세요"><b>Enter ↵</b></div>
 <div class="eg" id="eg">🦅 소피아는 독수리 타법이에요. 천천히 정확하게!</div></div></div>
 <div class="bub" id="bub"><i>C</i><span id="bt"></span></div>
-<div class="ov" id="start"><div class="egl">🦅</div><div class="t">사과문 받아치기</div><p>캘런이 내일 10시에 낭독할 사과문 v8,<br>독수리 타법으로 끝까지 쳐 봐요</p><p class="sub">첫 글자를 치는 순간부터 시간이 흘러요</p><button id="go">Start</button></div>
-<div class="ov" id="end" hidden><div class="t">작성 완료 📄</div><div class="big" id="fs">0<small>타/분</small></div><div><span class="rk" id="rk"></span></div><p id="fd"></p><div class="cm"><i>C</i><span id="fc"></span></div><button id="again">다시 치기</button></div>
+<div class="ov" id="start"><div class="egl">🦅</div><div class="t">사과문 v8 완성하기</div><p>캘런이 내일 10시에 낭독할 사과문,<br>독수리 타법으로 끝까지 완성해 봐요</p><p class="sub">첫 글자를 치는 순간부터 시간이 흘러요</p><button id="go">Start</button></div>
+<div class="ov" id="end" hidden><div class="t">작성 완료 📄</div><div class="big" id="fs">0<small>타/분</small></div><div><span class="rk" id="rk"></span></div><p id="fd"></p><div class="cm"><i>C</i><span id="fc"></span></div><div class="bt2"><button id="save" class="ghost">결과 저장하기</button><button id="again">다시 치기</button></div></div>
+<div class="ov pv" id="pv" hidden><img id="pvi" alt="result"><div class="bt2"><a id="dl" class="btn ghost" download="사과문v8_결과.png">이미지 다운로드</a><button id="pvx">닫기</button></div><p class="sub">다운로드가 안 되면 이미지를 길게 누르거나 우클릭 → 이미지 저장</p></div>
 <script>
 (()=>{
 const LINES=[
@@ -86,7 +93,7 @@ const TYPO=['오타.','또 틀렸어. 독수리야?','‘유감’ 틀리면 내
 const DONE=['오, 한 줄 했네.','그래, 그거야.','반은 왔다.','거의 다 했어. 조금만.'];
 const $=id=>document.getElementById(id);
 const doc=$('doc'),inp=$('in');
-let cur=0,t0=0,strokes=0,keys=0,errs=0,comp=false,lastBad=-1,playing=false,bubT=0,muted=false,ac=null,bonusSaid=false;
+let res=null,cur=0,t0=0,strokes=0,keys=0,errs=0,comp=false,lastBad=-1,playing=false,bubT=0,muted=false,ac=null,bonusSaid=false;
 try{muted=localStorage.getItem('tp-mute')==='1'}catch(e){}
 const CJ=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],JJ=[1,1,1,1,1,1,1,1,1,2,2,2,1,1,2,2,2,1,1,2,1],FJ=[0,1,1,2,1,2,2,1,1,2,2,2,2,2,2,2,1,1,2,1,1,1,1,1,1,1,1,1];
 function sk(ch){const c=ch.charCodeAt(0)-0xAC00;if(c<0||c>11171)return 1;return CJ[Math.floor(c/588)]+JJ[Math.floor(c%588/28)]+FJ[c%28]}
@@ -100,6 +107,40 @@ const sfx={
  start(){[523,659,784].forEach((f,i)=>tone(f,.14,{at:i*.07,type:'triangle',vol:.12}))},
  end(){[523,659,784,1047].forEach((f,i)=>tone(f,.2,{at:i*.1,type:'triangle',vol:.13}));tone(1568,.4,{at:.45,type:'sine',vol:.07})}
 };
+const F='-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans CJK KR","Noto Sans KR",sans-serif';
+function rr(x,c,y,w,h,r){x.beginPath();x.moveTo(c+r,y);x.arcTo(c+w,y,c+w,y+h,r);x.arcTo(c+w,y+h,c,y+h,r);x.arcTo(c,y+h,c,y,r);x.arcTo(c,y,c+w,y,r);x.closePath()}
+function wrap(x,t,maxW){const out=[];let line='';for(const w of t.split(' ')){const tt=line?line+' '+w:w;if(x.measureText(tt).width>maxW&&line){out.push(line);line=w}else line=tt}out.push(line);return out}
+function drawCard(cv,d){
+ const W=1080,H=1350;cv.width=W;cv.height=H;const x=cv.getContext('2d');
+ let g=x.createLinearGradient(0,0,W*.4,H);g.addColorStop(0,'#ecc4cd');g.addColorStop(.55,'#dba3b0');g.addColorStop(1,'#c98a9a');x.fillStyle=g;x.fillRect(0,0,W,H);
+ [[.18,.1,.6,'#fbeef1'],[.9,.3,.5,'#e8b4bf'],[.5,1.05,.7,'#b5677a']].forEach(([cx,cy,r,col])=>{const rg=x.createRadialGradient(cx*W,cy*H,0,cx*W,cy*H,r*W);rg.addColorStop(0,col);rg.addColorStop(1,col+'00');x.fillStyle=rg;x.fillRect(0,0,W,H)});
+ x.textBaseline='alphabetic';
+ x.fillStyle='rgba(255,255,255,.55)';rr(x,90,75,900,64,32);x.fill();
+ [['#d98fa0',128],['#e8b4bf',160],['#f3d6dc',192]].forEach(([c,cx])=>{x.fillStyle=c;x.beginPath();x.arc(cx,107,10,0,7);x.fill()});
+ x.fillStyle='#4b3a40';x.font='600 26px '+F;x.textAlign='center';x.fillText('사과문_v8_진짜최종.pages',W/2,116);
+ const L=90,T=170,CW=900,CH=1000;
+ x.fillStyle='#fff';rr(x,L,T,CW,CH,40);x.fill();x.strokeStyle='#efd3da';x.lineWidth=2;x.stroke();
+ x.textAlign='left';x.fillStyle='#9a8287';x.font='600 22px '+F;
+ x.fillText('LIVERPOOL FC  ·  COMMUNICATIONS  ·  DRAFT 8',L+70,T+90);
+ x.fillStyle='#7e3f50';x.font='800 50px '+F;x.fillText('사과문 v8 완성하기 결과',L+70,T+160);
+ x.fillStyle='#efd3da';x.fillRect(L+70,T+200,CW-140,2);
+ const sp=String(d.spd);x.font='700 52px '+F;const uw=x.measureText('타/분').width;let fs=230;x.font='800 '+fs+'px '+F;while(x.measureText(sp).width>CW-150-uw-20&&fs>120){fs-=10;x.font='800 '+fs+'px '+F}x.fillStyle='#8e4a5c';x.fillText(sp,L+60,T+430);
+ const nw=x.measureText(sp).width;x.fillStyle='#9a8287';x.font='700 52px '+F;x.fillText('타/분',L+70+nw+10,T+430);
+ x.font='700 40px '+F;const rkw=x.measureText(d.rk).width+70;x.fillStyle='#8e4a5c';rr(x,L+70,T+475,rkw,72,36);x.fill();x.fillStyle='#fff';x.fillText(d.rk,L+105,T+525);
+ const st=[['정확도',d.acc+'%'],['걸린 시간',d.time],['오타',d.errs+'번']];const bw=(CW-140-40)/3;
+ st.forEach(([k,v],i)=>{const bx=L+70+i*(bw+20),by=T+600;x.fillStyle='#fbeef1';rr(x,bx,by,bw,150,26);x.fill();x.fillStyle='#9a8287';x.font='600 26px '+F;x.fillText(k,bx+30,by+52);x.fillStyle='#7e3f50';x.font='800 50px '+F;x.fillText(v,bx+30,by+118)});
+ const by=T+840;x.font='500 32px '+F;const lines=wrap(x,d.cm,600);const bh=lines.length*46+40,bwid=Math.max(...lines.map(l=>x.measureText(l).width))+56;
+ const bx2=L+150,by2=by;x.fillStyle='#e9e9eb';x.beginPath();x.moveTo(bx2+34,by2);x.arcTo(bx2+bwid,by2,bx2+bwid,by2+bh,34);x.arcTo(bx2+bwid,by2+bh,bx2,by2+bh,34);x.arcTo(bx2,by2+bh,bx2,by2,8);x.arcTo(bx2,by2,bx2+bwid,by2,34);x.closePath();x.fill();
+ x.fillStyle='#1d1d1f';lines.forEach((l,i)=>x.fillText(l,bx2+28,by2+52+i*46));
+ x.fillStyle='#9a8287';x.font='600 22px '+F;x.fillText('Callan',bx2+6,by2-14);
+ const ay=by2+bh-32;const ag=x.createLinearGradient(L+70,ay-32,L+134,ay+32);ag.addColorStop(0,'#d29aa7');ag.addColorStop(1,'#8e4a5c');x.fillStyle=ag;x.beginPath();x.arc(L+102,ay,32,0,7);x.fill();
+ x.fillStyle='#fff';x.font='800 30px '+F;x.textAlign='center';x.fillText('C',L+102,ay+11);x.textAlign='left';
+ x.save();x.translate(L+CW-160,T+150);x.rotate(-0.22);x.globalAlpha=.85;x.strokeStyle='#6e1f33';x.fillStyle='#6e1f33';
+ x.lineWidth=6;x.beginPath();x.arc(0,0,105,0,7);x.stroke();x.lineWidth=2.5;x.beginPath();x.arc(0,0,90,0,7);x.stroke();
+ x.textAlign='center';x.font='800 34px '+F;x.fillText('APPROVED',0,-8);x.fillRect(-70,8,140,3);x.font='700 21px '+F;x.fillText("C. O'CONNOR",0,42);x.font='700 16px '+F;x.fillText('No.10',0,-52);x.restore();x.textAlign='left';
+ x.fillStyle='rgba(255,255,255,.92)';x.font='700 28px '+F;x.textAlign='center';x.fillText('🦅  독수리 타법으로 끝까지 쳤어요',W/2,T+CH+70);
+ x.fillStyle='rgba(255,255,255,.75)';x.font='600 22px '+F;x.fillText("Sophia's iMac  ·  "+d.date,W/2,T+CH+112);x.textAlign='left';
+}
 const muBtn=()=>$('mu').classList.toggle('off',muted);
 const esc=s=>s.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
 function say(t,ms){$('bt').textContent=t;$('bub').classList.add('on');clearTimeout(bubT);bubT=setTimeout(()=>$('bub').classList.remove('on'),ms||2200)}
@@ -157,6 +198,7 @@ function finish(){
  $('fs').innerHTML=spd+'<small>타/분</small>';$('rk').textContent=rk;
  $('fd').textContent=`정확도 ${acc}% · 걸린 시간 ${m?m+'분 ':''}${s}초 · 오타 ${errs}번`;
  $('fc').textContent=cm;$('end').hidden=false;
+ res={spd,rk,acc,time:(m?m+'분 ':'')+s+'초',errs,cm};
 }
 function begin(){
  cur=0;t0=0;strokes=0;keys=0;errs=0;lastBad=-1;comp=false;playing=true;inp.value='';
@@ -170,6 +212,8 @@ inp.addEventListener('input',e=>{comp=!!e.isComposing||comp;onInput()});
 inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing&&playing){e.preventDefault();if(inp.value.trim()===LINES[cur])next();else{sfx.bad();say('아직 다 안 쳤잖아.')}}});
 setInterval(()=>{if(playing&&t0)stats()},500);
 $('mu').onclick=()=>{muted=!muted;try{localStorage.setItem('tp-mute',muted?'1':'0')}catch(e){}muBtn();if(!muted){actx();sfx.key()}};muBtn();
+$('save').onclick=()=>{if(!res)return;const cv=document.createElement('canvas');const d=new Date();drawCard(cv,Object.assign({date:d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0')},res));const u=cv.toDataURL('image/png');$('pvi').src=u;$('dl').href=u;$('pv').hidden=false;sfx.line()};
+$('pvx').onclick=()=>{$('pv').hidden=true};
 $('go').onclick=begin;$('again').onclick=begin;
 build();paint();
 })();
